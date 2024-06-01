@@ -1,4 +1,5 @@
 
+
 // Scene
 const scene = new THREE.Scene();
 
@@ -34,6 +35,24 @@ scene.add(cube);    // Add the cube to the scene
 
 
 // Controls
+
+//Texture of the Floor
+
+let floorTexture = new THREE.ImageUtils.loadTexture('img/Floor.jpg');  //ImageUtils is depreciated in the newer version of Three.js
+
+
+// let floorTexture = new THREE.TextureLoader().load('img/Floor.jpg');
+
+
+//Create the floor plane
+let planeGeometry = new THREE.PlaneBufferGeometry(50, 50);  
+let planeMaterial = new THREE.MeshBasicMaterial({map: floorTexture, side: THREE.DoubleSide});
+let floorPlane = new THREE.Mesh(planeGeometry, planeMaterial);
+floorPlane.rotation.x = 0.5 * Math.PI;
+floorPlane.position.y = - Math.PI;
+scene.add(floorPlane);
+
+
 // Event listener for when we press the keys
 document.addEventListener('keydown', function(event) {
     switch(event.key) {
