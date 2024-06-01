@@ -33,6 +33,25 @@ const cube = new THREE.Mesh(geometry, material);    // Create the cube
 scene.add(cube);    // Add the cube to the scene
 
 
+// Controls
+// Event listener for when we press the keys
+document.addEventListener('keydown', function(event) {
+    switch(event.key) {
+        case 'ArrowUp':
+            cube.position.y += 0.1;
+            break;
+        case 'ArrowDown':
+            cube.position.y -= 0.1;
+            break;
+        case 'ArrowLeft':
+            cube.position.x -= 0.1;
+            break;
+        case 'ArrowRight':
+            cube.position.x += 0.1;
+            break;
+    }
+});
+
 // Animation
 let render = function() {
     cube.rotation.x += 0.01;
