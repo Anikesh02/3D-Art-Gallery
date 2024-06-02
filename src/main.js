@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-
+import { PointerLockControls } from 'three-stdlib';
 
 // Scene
 const scene = new THREE.Scene();
@@ -32,8 +32,6 @@ const geometry = new THREE.BoxGeometry(1, 1, 1);  // Width, Height, Depth
 const material = new THREE.MeshBasicMaterial({color: 'blue'});  // Adding color of the cube
 const cube = new THREE.Mesh(geometry, material);    // Create the cube
 scene.add(cube);    // Add the cube to the scene
-
-// Controls
 
 //Texture of the Floor
 
@@ -102,24 +100,55 @@ const painting2 = createPainting('/artworks/1.jpg', 10, 5, new THREE.Vector3(-10
 
 scene.add(painting1,painting2);
 
+// Controls
+const controls = new PointerLockControls(camera, document.body);
 
-// Event listener for when we press the keys
-document.addEventListener('keydown', function(event) {
-    switch(event.key) {
-        case 'ArrowUp':
-            cube.position.y += 0.1;
-            break;
-        case 'ArrowDown':
-            cube.position.y -= 0.1;
-            break;
-        case 'ArrowLeft':
-            cube.position.x -= 0.1;
-            break;
-        case 'ArrowRight':
-            cube.position.x += 0.1;
-            break;
+// Lock the pointer (controls are activated) and hide the menu when the experience starts
+function startExperience() {
+    controls.lock();
+    hideMenu();
+}
+
+const playButton = document.getElementById('play_button');
+playButton.addEventListener('click', startExperience);
+
+// Hide Menu
+function hideMenu() {
+    const menu = document.getElementById('menu')
+    menu.style.display = 'none';
+}
+
+// Show Menu
+function showMenu() {
+    const menu = document.getElementById('menu')
+    menu.style.display = 'flex';
+}
+controls.addEventListener('unlock', showMenu);
+
+// Event Listener for when we press the Keys
+document.addEventListener('keydown', onKeyDown, false);
+
+// Function for Movement when we press the keys
+function onKeyDown(event) {
+    let keycode = event.which;
+
+    // Right Arrow Key
+    if (keycode === 39 || keycode === 68) {
+        controls.moveRight(0.08);
     }
-});
+    // Left Arrow Key
+    else if (keycode === 37 || keycode === 65) {
+        controls.moveRight(-0.08);
+    }
+    // Up Arrow Key
+    else if (keycode === 38 || keycode === 87) {
+        controls.moveForward(0.08);
+    }
+    // Down Arrow Key
+    else if (keycode === 40 || keycode === 83) {
+        controls.moveForward(-0.08);
+    }
+}
 
 // Animation
 const render = function() {
