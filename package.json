@@ -1,0 +1,9 @@
+{
+  "dependencies": {
+    "three": "^0.165.0",
+    "three-stdlib": "^2.30.3"
+  },
+  "devDependencies": {
+    "vite": "^5.2.12"
+  }
+}

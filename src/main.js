@@ -1,3 +1,5 @@
+import * as THREE from 'three';
+
 
 // Scene
 const scene = new THREE.Scene();
@@ -15,7 +17,7 @@ document.body.appendChild(renderer.domElement);  // Add the renderer to the body
 
 // Ambient Light
 const ambientLight = new THREE.AmbientLight(0x101010, 1);
-ambientLight.position.copy(camera.position);  //Light follows the camera position
+// ambientLight.position.copy(camera.position);  //Light follows the camera position
 scene.add(ambientLight);
 
 // Directional Light
@@ -24,9 +26,10 @@ sunLight.position.y = 15;
 scene.add(sunLight);
 
 // Geometry
-const boxTexture = new THREE.ImageUtils.loadTexture('img/Floor.jpg');
+// const boxTexture = new THREE.ImageUtils.loadTexture('img/Floor.jpg');
 const geometry = new THREE.BoxGeometry(1, 1, 1);  // Width, Height, Depth
-const material = new THREE.MeshBasicMaterial({map: boxTexture});  // Color of the cube
+// const material = new THREE.MeshBasicMaterial({map: boxTexture});  // Adding texture of the cube
+const material = new THREE.MeshBasicMaterial({color: 'blue'});  // Adding color of the cube
 const cube = new THREE.Mesh(geometry, material);    // Create the cube
 scene.add(cube);    // Add the cube to the scene
 
@@ -34,11 +37,17 @@ scene.add(cube);    // Add the cube to the scene
 
 //Texture of the Floor
 
-const floorTexture = new THREE.ImageUtils.loadTexture('img/Floor.jpg');  //ImageUtils is depreciated in the newer version of Three.js
-// const floorTexture = new THREE.TextureLoader().load('img/Floor.jpg');
+// const floorTexture = new THREE.ImageUtils.loadTexture('src/public/img/Floor.jpg');  //ImageUtils is depreciated in the newer version of Three.js
+
+const textureLoader = new THREE.TextureLoader();
+const floorTexture = textureLoader.load('/img/Floor.jpg');
+floorTexture.wrapS = THREE.RepeatWrapping;
+floorTexture.wrapT = THREE.RepeatWrapping;
+floorTexture.repeat.set(10,10);
+
 
 //Create the floor plane
-const planeGeometry = new THREE.PlaneBufferGeometry(50,50);  
+const planeGeometry = new THREE.PlaneGeometry(50,50);  
 const planeMaterial = new THREE.MeshBasicMaterial({map: floorTexture, side: THREE.DoubleSide});
 const floorPlane = new THREE.Mesh(planeGeometry, planeMaterial);
 floorPlane.rotation.x = 0.5 * Math.PI;
@@ -68,14 +77,31 @@ for (let i = 0; i < wallGroup.children.length; i++) {
    wallGroup.children[i].BBox = new THREE.Box3().setFromObject(wallGroup.children[i]); 
 }
 
-
 // Ceiling 
-const ceilingGeometry = new THREE.PlaneBufferGeometry(50, 50);
+const ceilingGeometry = new THREE.PlaneGeometry(50, 50);
 const ceilingMaterial = new THREE.MeshBasicMaterial({color: 'blue', side: THREE.DoubleSide});
 const ceilingPlane = new THREE.Mesh(ceilingGeometry, ceilingMaterial);
 ceilingPlane.rotation.x = -0.5 * Math.PI;
 ceilingPlane.position.y = 10;
 scene.add(ceilingPlane);
+
+// Create Painting
+function createPainting(imageUrl, width, height, position) {
+    const textureLoader = new THREE.TextureLoader();
+    const paintingTexture = textureLoader.load(imageUrl);
+    const paintingMaterial = new THREE.MeshBasicMaterial({map: paintingTexture});
+    const paintingGeometry = new THREE.PlaneGeometry(width, height);
+    const painting = new THREE.Mesh(paintingGeometry, paintingMaterial);
+    painting.position.set(position.x, position.y, position.z);
+    return painting;
+}
+
+const painting1 = createPainting('/artworks/0.jpg', 10, 5, new THREE.Vector3(10, 5, -19));
+const painting2 = createPainting('/artworks/1.jpg', 10, 5, new THREE.Vector3(-10, 5, -19));
+
+
+scene.add(painting1,painting2);
+
 
 // Event listener for when we press the keys
 document.addEventListener('keydown', function(event) {
