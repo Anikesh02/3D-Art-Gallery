@@ -5,9 +5,10 @@ import { PointerLockControls } from 'three-stdlib';
 const scene = new THREE.Scene();
 
 //Camera
-const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
 scene.add(camera);
-camera.position.z = 5;   // Move the camera back 5 units so we can see the scene
+// camera.position.z = 5;
+camera.position.set(0, 2, 15);    // Move the camera back 5 units so we can see the scene
 
 // Renderer
 const renderer = new THREE.WebGLRenderer({antialias: true});  // For Smooth Edges
@@ -27,6 +28,7 @@ scene.add(sunLight);
 
 // Geometry
 // const boxTexture = new THREE.ImageUtils.loadTexture('img/Floor.jpg');
+// const boxTexture = new THREE.TextureLoader().load('/img/Floor.jpg');
 const geometry = new THREE.BoxGeometry(1, 1, 1);  // Width, Height, Depth
 // const material = new THREE.MeshBasicMaterial({map: boxTexture});  // Adding texture of the cube
 const material = new THREE.MeshBasicMaterial({color: 'blue'});  // Adding color of the cube
@@ -34,8 +36,6 @@ const cube = new THREE.Mesh(geometry, material);    // Create the cube
 scene.add(cube);    // Add the cube to the scene
 
 //Texture of the Floor
-
-// const floorTexture = new THREE.ImageUtils.loadTexture('src/public/img/Floor.jpg');  //ImageUtils is depreciated in the newer version of Three.js
 
 const textureLoader = new THREE.TextureLoader();
 const floorTexture = textureLoader.load('/img/Floor.jpg');
@@ -45,7 +45,7 @@ floorTexture.repeat.set(10,10);
 
 
 //Create the floor plane
-const planeGeometry = new THREE.PlaneGeometry(50,50);  
+const planeGeometry = new THREE.PlaneGeometry(50,50);
 const planeMaterial = new THREE.MeshBasicMaterial({map: floorTexture, side: THREE.DoubleSide});
 const floorPlane = new THREE.Mesh(planeGeometry, planeMaterial);
 floorPlane.rotation.x = 0.5 * Math.PI;
@@ -57,27 +57,36 @@ const wallGroup = new THREE.Group();
 scene.add(wallGroup);
 
 // Front wall
-const frontWall = new THREE.Mesh(new THREE.BoxGeometry(50, 20, 0.001), new THREE.MeshBasicMaterial({color: 'green'}));
+const frontWallTexture = new THREE.TextureLoader().load('/img/leftWall.jpg');
+const frontWall = new THREE.Mesh(new THREE.BoxGeometry(80, 20, 0.001), new THREE.MeshBasicMaterial({map: frontWallTexture}));
 frontWall.position.z = -20;
 
 // Left wall
-const leftWall = new THREE.Mesh(new THREE.BoxGeometry(0.001, 20, 50), new THREE.MeshBasicMaterial({color: 'red'}));
+const leftWallTexture = new THREE.TextureLoader().load('/img/rightWall.jpg');
+const leftWall = new THREE.Mesh(new THREE.BoxGeometry(0.001, 20, 80), new THREE.MeshBasicMaterial({map: leftWallTexture}));
 leftWall.position.x = -25;
 
 // Right wall
-const rightWall = new THREE.Mesh(new THREE.BoxGeometry(0.001, 20, 50), new THREE.MeshBasicMaterial({color: 'yellow'}));
+const rightWallTexture = new THREE.TextureLoader().load('/img/rightWall.jpg');
+const rightWall = new THREE.Mesh(new THREE.BoxGeometry(0.001, 20, 80), new THREE.MeshBasicMaterial({map: rightWallTexture}));
 rightWall.position.x = 25;
 
-wallGroup.add(frontWall, leftWall, rightWall);
+// Back wall
+const backWallTexture = new THREE.TextureLoader().load('/img/leftWall.jpg');
+const backWall = new THREE.Mesh(new THREE.BoxGeometry(80, 20, 0.001), new THREE.MeshBasicMaterial({map: backWallTexture}));
+backWall.position.z = 20;
+
+wallGroup.add(frontWall, leftWall, rightWall, backWall);
 
 // Loop through each wall and create the bounding box
 for (let i = 0; i < wallGroup.children.length; i++) {
    wallGroup.children[i].BBox = new THREE.Box3().setFromObject(wallGroup.children[i]); 
 }
 
-// Ceiling 
+// Ceiling
+const ceilingTexture = new THREE.TextureLoader().load('/img/officeCeiling.jpg');
 const ceilingGeometry = new THREE.PlaneGeometry(50, 50);
-const ceilingMaterial = new THREE.MeshBasicMaterial({color: 'blue', side: THREE.DoubleSide});
+const ceilingMaterial = new THREE.MeshBasicMaterial({map: ceilingTexture, side: THREE.DoubleSide});
 const ceilingPlane = new THREE.Mesh(ceilingGeometry, ceilingMaterial);
 ceilingPlane.rotation.x = -0.5 * Math.PI;
 ceilingPlane.position.y = 10;
@@ -97,8 +106,10 @@ function createPainting(imageUrl, width, height, position) {
 const painting1 = createPainting('/artworks/0.jpg', 10, 5, new THREE.Vector3(10, 5, -19));
 const painting2 = createPainting('/artworks/1.jpg', 10, 5, new THREE.Vector3(-10, 5, -19));
 
+// const paintings = createPaintings(scene, textureLoader);
 
-scene.add(painting1,painting2);
+
+scene.add(painting1, painting2);
 
 // Controls
 const controls = new PointerLockControls(camera, document.body);
