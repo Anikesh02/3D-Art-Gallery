@@ -24,8 +24,9 @@ sunLight.position.y = 15;
 scene.add(sunLight);
 
 // Geometry
+const boxTexture = new THREE.ImageUtils.loadTexture('img/Floor.jpg');
 const geometry = new THREE.BoxGeometry(1, 1, 1);  // Width, Height, Depth
-const material = new THREE.MeshBasicMaterial({color: 'blue'});  // Color of the cube
+const material = new THREE.MeshBasicMaterial({map: boxTexture});  // Color of the cube
 const cube = new THREE.Mesh(geometry, material);    // Create the cube
 scene.add(cube);    // Add the cube to the scene
 
@@ -37,7 +38,7 @@ const floorTexture = new THREE.ImageUtils.loadTexture('img/Floor.jpg');  //Image
 // const floorTexture = new THREE.TextureLoader().load('img/Floor.jpg');
 
 //Create the floor plane
-const planeGeometry = new THREE.PlaneBufferGeometry(45,45);  
+const planeGeometry = new THREE.PlaneBufferGeometry(50,50);  
 const planeMaterial = new THREE.MeshBasicMaterial({map: floorTexture, side: THREE.DoubleSide});
 const floorPlane = new THREE.Mesh(planeGeometry, planeMaterial);
 floorPlane.rotation.x = 0.5 * Math.PI;
@@ -53,15 +54,28 @@ const frontWall = new THREE.Mesh(new THREE.BoxGeometry(50, 20, 0.001), new THREE
 frontWall.position.z = -20;
 
 // Left wall
-const leftWall = new THREE.Mesh(new THREE.BoxGeometry(0.001, 20, 50), new THREE.MeshBasicMaterial({color: 'blue'}));
+const leftWall = new THREE.Mesh(new THREE.BoxGeometry(0.001, 20, 50), new THREE.MeshBasicMaterial({color: 'red'}));
 leftWall.position.x = -25;
 
 // Right wall
-const rightWall = new THREE.Mesh(new THREE.BoxGeometry(0.001, 20, 50), new THREE.MeshBasicMaterial({color: 'red'}));
+const rightWall = new THREE.Mesh(new THREE.BoxGeometry(0.001, 20, 50), new THREE.MeshBasicMaterial({color: 'yellow'}));
 rightWall.position.x = 25;
 
 wallGroup.add(frontWall, leftWall, rightWall);
 
+// Loop through each wall and create the bounding box
+for (let i = 0; i < wallGroup.children.length; i++) {
+   wallGroup.children[i].BBox = new THREE.Box3().setFromObject(wallGroup.children[i]); 
+}
+
+
+// Ceiling 
+const ceilingGeometry = new THREE.PlaneBufferGeometry(50, 50);
+const ceilingMaterial = new THREE.MeshBasicMaterial({color: 'blue', side: THREE.DoubleSide});
+const ceilingPlane = new THREE.Mesh(ceilingGeometry, ceilingMaterial);
+ceilingPlane.rotation.x = -0.5 * Math.PI;
+ceilingPlane.position.y = 10;
+scene.add(ceilingPlane);
 
 // Event listener for when we press the keys
 document.addEventListener('keydown', function(event) {
