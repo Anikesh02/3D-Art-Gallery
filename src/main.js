@@ -1,6 +1,8 @@
 import * as THREE from 'three';
 import { PointerLockControls } from 'three-stdlib';
-import { GLTFLoader } from 'three/examples/jsm/Addons.js';
+// import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
+import { TextureLoader } from 'three';
 
 // Scene
 const scene = new THREE.Scene();
@@ -13,18 +15,32 @@ camera.position.set(0, 3, 15);    // Move the camera back 5 units so we can see 
 // Renderer
 const renderer = new THREE.WebGLRenderer({antialias: true});  // For Smooth Edges
 renderer.setSize(window.innerWidth, window.innerHeight);
-renderer.setClearColor(0xffffff, 1);  // Set the background color of the scene
+renderer.setClearColor(0x000000, 1);  // Set the background color of the scene
 document.body.appendChild(renderer.domElement);  // Add the renderer to the body element
 
 // Ambient Light
-const ambientLight = new THREE.AmbientLight(0x101010, 1);
+const ambientLight = new THREE.AmbientLight(0xfffffff, 1);
 // ambientLight.position.copy(camera.position);  //Light follows the camera position
 scene.add(ambientLight);
 
 // Directional Light
-const sunLight = new THREE.DirectionalLight(0xdddddd, 1);  // color, intensity
-sunLight.position.y = 15;
-scene.add(sunLight);
+// const sunLight = new THREE.DirectionalLight(0xdddddd, 1);  // color, intensity
+// sunLight.position.y = 80;
+// scene.add(sunLight);
+
+// // Helper for the light
+// const helper = new THREE.DirectionalLightHelper(sunLight, 1);
+// scene.add(helper);
+
+//Front light
+const frontLight = new THREE.DirectionalLight(0xffffff, 5);
+frontLight.position.set(0, 8, 40);
+scene.add(frontLight);
+
+// Helper for the light
+const helper2 = new THREE.DirectionalLightHelper(frontLight, 5);
+scene.add(helper2);
+
 
 // Geometry
 // const boxTexture = new THREE.ImageUtils.loadTexture('img/Floor.jpg');
@@ -107,23 +123,14 @@ wallGroup.add(frontWall, leftWall, rightWall, backWall, door, rightRightWall, le
 for (let i = 0; i < wallGroup.children.length; i++) {
    wallGroup.children[i].BBox = new THREE.Box3().setFromObject(wallGroup.children[i]); 
 }
-
-// Create a staircase near the front wall
-// const stairsTexture = new THREE.TextureLoader().load('/img/stairs.jpg');
-const stairsGeometry = new THREE.BoxGeometry(10, 2, 10);
-const stairsMaterial = new THREE.MeshStandardMaterial({color: 'blue'});
-const stairs = new THREE.Mesh(stairsGeometry, stairsMaterial);
-stairs.position.set(0, 1, -5);
-scene.add(stairs);
-
-
+ 
 // Add a table model in front of the front wall
 const tableTexture = new THREE.TextureLoader().load('/img/table.jpg');
 const tableGeometry = new THREE.BoxGeometry(10, 2, 5);
 const tableMaterial = new THREE.MeshStandardMaterial({map: tableTexture});
 const table = new THREE.Mesh(tableGeometry, tableMaterial);
 table.position.set(0, 1, -15);
-scene.add(table);
+// scene.add(table);
 
 // Add two small walls above the floor in which the paintings will be placed
 const wallTexture = new THREE.TextureLoader().load('/img/table.jpg');
@@ -140,57 +147,81 @@ wall2.position.set(-6, -5, 2);
 
 scene.add(wall1, wall2);
 
+// Stairs
+const stairs = () => {
+  // const textureLoader1 = new THREE.TextureLoader();
+  // const texture = textureLoader1.load( '/img/stairsTexture.jpg' );
+  const loader = new GLTFLoader().setPath('new/');
+  loader.load('scene.gltf', (gltf) => {
+    console.log(gltf);
 
-// Loading a glb model over the table
-const loader = new GLTFLoader();
-// // loader.load('/plant_asset/scene.gltf', function(gltf) {
-// //     gltf.scene.scale.set(0.01, 0.01, 0.01);
-// //     gltf.scene.position.set(0, 0, -15);
-// //     scene.add(gltf.scene);
-// // });
+    const mesh = gltf.scene;
+    mesh.traverse((child) => {
+      if (child.isMesh) {
+        child.castShadow = true;
+        child.receiveShadow = true;
+        // child.material.map = texture;
+      }
+    });
 
-loader.load(
-	// resource URL
-	'/plant_asset/scene.gltf',
-	// called when the resource is loaded
-	( gltf ) => {
-        const statue = gltf.scene;
+    mesh.position.set(-3, -3, -15);
+    mesh.scale.set(2.8, 4, 4);
 
-        console.log("STATUE", gltf);
-        // Position the statue at the center of the floor
-      statue.position.set(0, 0, -15);
+    // Add the mesh to the scene
+    scene.add(mesh);
 
-      // Scale if necessary
-      statue.scale.set(0.01, 0.01, 0.01);
+    // Camera Movement for Stairs
+    let step = 0;
+    const stepSize = 0.08;
 
-      // Iterate through all the meshes in the statue and update their materials
-      statue.traverse((child) => {
-        if (child.isMesh) {
-          map: child.material.map,
-            // Modify child.material here to improve appearance
-            (child.material.metalness = 0.0),
-            (child.material.roughness = 0.2),
-            // Cast shadow
-            (child.castShadow = true);
+    function animate() {
+      requestAnimationFrame(animate);
 
-          console.log("Statue Material:", child.material);
+      // Check if the camera is on the stairs
+      if (camera.position.z >= mesh.position.z && camera.position.z <= mesh.position.z + 10 && camera.position.y >= mesh.position.y && camera.position.y <= mesh.position.y + 10) {
+        // Simulate stepping up the stairs
+        camera.position.y += stepSize;
+        camera.position.z += stepSize;
+
+        // Adjust the step count
+        step++;
+
+        // Stop the animation after 100 steps
+        if (step > 100) {
+          step = 0;
+          camera.position.y -= stepSize * 100;
+          camera.position.z -= stepSize * 100;
         }
-      });
-      scene.add(statue);
-	},
-	// called while loading is progressing
-	function ( xhr ) {
-		console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
-	},
-	// called when loading has errors
-	function ( error ) {
-		console.log( 'An error happened' );
-	}
-);
+      }
 
-const light = new THREE.DirectionalLight(0xffffff, 1);
-light.position.set(2,2,5);
+      controls.update();
+      renderer.render(scene, camera);
+    }
+
+    animate();
+  }, (xhr) => {
+    console.log(`loading ${xhr.loaded / xhr.total * 100}%`);
+  }, (error) => {
+    console.error(error);
+  });
+}
+stairs();
+
+
+
+// const spotLight = new THREE.SpotLight(0xffffff, 3000, 100, 22, 1);
+// spotLight.position.set(0, 25, 0);
+// spotLight.castShadow = true;
+// spotLight.shadow.bias = -0.0001;
+// scene.add(spotLight);
+
+const light = new THREE.DirectionalLight(0xffffff, 3);
+light.position.set(-25,5,0);
 scene.add(light);
+
+// Helper for the light
+const helper = new THREE.DirectionalLightHelper(light, 1);
+scene.add(helper);
 
 // Ceiling
 const ceilingTexture = new THREE.TextureLoader().load('/img/ceiling.jpg');
@@ -200,8 +231,6 @@ const ceilingPlane = new THREE.Mesh(ceilingGeometry, ceilingMaterial);
 ceilingPlane.rotation.x = -0.5 * Math.PI;
 ceilingPlane.position.y = 10;
 scene.add(ceilingPlane);
-
-
 
 // Controls
 const controls = new PointerLockControls(camera, document.body);
@@ -224,7 +253,7 @@ function hideMenu() {
 // Show Menu
 function showMenu() {
     const menu = document.getElementById('menu')
-    menu.style.display = 'none';
+    menu.style.display = 'flex';
 }
 controls.addEventListener('unlock', showMenu);
 
@@ -253,13 +282,18 @@ function onKeyDown(event) {
     }
 }
 
+window.addEventListener('resize', () => {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+  });
+
 // Animation
 const render = function() {
     cube.rotation.x += 0.01;
     cube.rotation.y += 0.01;
     requestAnimationFrame(render);
     renderer.render(scene, camera);
-    
 }
 
 render();
