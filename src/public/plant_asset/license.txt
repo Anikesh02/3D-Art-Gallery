@@ -1,8 +1,0 @@
-Model Information:
-* title:	Plant Asset
-* source:	https://sketchfab.com/3d-models/plant-asset-cd659a5ce66d46cf93ec3348c316e918
-* author:	Maria de Fatima (https://sketchfab.com/kafezinn)
-
-Model License:
-* license type:	SKETCHFAB Standard (https://sketchfab.com/licenses)
-* requirements:	Under basic restrictions, use worldwide, on all types of media, commercially or not, and in all types of derivative works
