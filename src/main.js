@@ -7,7 +7,7 @@ import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 const scene = new THREE.Scene();
 
 //Camera
-const camera = new THREE.PerspectiveCamera(100, window.innerWidth / window.innerHeight, 0.1, 1000);
+const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 scene.add(camera);
 camera.position.set(0, 3, 15);    // Move the camera back 5 units so we can see the scene
 
@@ -30,7 +30,6 @@ scene.add(ambientLight);
 // // Helper for the light
 // const helper = new THREE.DirectionalLightHelper(sunLight, 1);
 // scene.add(helper);
-
 
 
 // Geometry
@@ -189,7 +188,7 @@ function animate() {
     }
   }
 
-  controls.update();
+  controls.update(0.01);
   renderer.render(scene, camera);
 }
 
@@ -202,6 +201,10 @@ animate();
   });
 }
 stairs();
+
+
+
+
 
 // First Floor Stairs
 // const firstFloorstairs = () => {
@@ -278,7 +281,7 @@ FrontLight.position.set(2,2,10);
 scene.add(FrontLight);
 
 // Helper for the light
-const FrontLightHelper = new THREE.DirectionalLightHelper(FrontLight, 1);
+const FrontLightHelper = new THREE.DirectionalLightHelper(FrontLight, 1); 
 scene.add(FrontLightHelper);
 
 // Door Model
@@ -332,8 +335,8 @@ const pillarModel = () => {
       }
     });
 
-    mesh.position.set(-5,-14.5,2); // x, y, z
-    mesh.scale.set(3, 5, 2); // Depth, Height, Width
+    mesh.position.set(-6,-7,-20); // x, y, z
+    mesh.scale.set(2, 3.8, 2); // Depth, Height, Width
     
     // Add the mesh to the scene
     scene.add(mesh);
@@ -347,6 +350,70 @@ const pillarModel = () => {
   });
 }
 pillarModel();
+
+const pillarModel1 = () => {
+  // const textureLoader1 = new THREE.TextureLoader();
+  // const texture = textureLoader1.load( '/img/Floor.jpg' );
+  const loader = new GLTFLoader().setPath('greek_pillar/');
+  loader.load('scene.gltf', (gltf) => {
+    console.log(gltf);
+
+    const mesh = gltf.scene;
+    mesh.traverse((child) => {
+      if (child.isMesh) {
+        child.castShadow = true;
+        child.receiveShadow = true;
+        // child.material.map = texture;
+      }
+    });
+
+    mesh.position.set(-6,-7,-5); // x, y, z
+    mesh.scale.set(2, 3.8, 2); // Depth, Height, Width
+    
+    // Add the mesh to the scene
+    scene.add(mesh);
+
+
+  
+  }, (xhr) => {
+    console.log(`loading pillar ${xhr.loaded / xhr.total * 100}%`);
+  }, (error) => {
+    console.error(error);
+  });
+}
+pillarModel1();
+
+const pillarModel2 = () => {
+  // const textureLoader1 = new THREE.TextureLoader();
+  // const texture = textureLoader1.load( '/img/Floor.jpg' );
+  const loader = new GLTFLoader().setPath('greek_pillar/');
+  loader.load('scene.gltf', (gltf) => {
+    console.log(gltf);
+
+    const mesh = gltf.scene;
+    mesh.traverse((child) => {
+      if (child.isMesh) {
+        child.castShadow = true;
+        child.receiveShadow = true;
+        // child.material.map = texture;
+      }
+    });
+
+    mesh.position.set(-6,-7,10); // x, y, z
+    mesh.scale.set(2, 3.8, 2); // Depth, Height, Width
+    
+    // Add the mesh to the scene
+    scene.add(mesh);
+
+
+  
+  }, (xhr) => {
+    console.log(`loading pillar ${xhr.loaded / xhr.total * 100}%`);
+  }, (error) => {
+    console.error(error);
+  });
+}
+pillarModel2();
 
 // const spotLight = new THREE.SpotLight(0xffffff, 3000, 100, 22, 1);
 // spotLight.position.set(0, 25, 0);
@@ -398,9 +465,9 @@ scene.add(firstFloorBackWall);
 
 // First Floor left Wall
 const firstFloorLeftWallTexture = new THREE.TextureLoader().load('/img/rightWall.jpg');
-const firstFloorLeftWall = new THREE.Mesh(new THREE.BoxGeometry(0.001, 20, 50), new THREE.MeshBasicMaterial({map: firstFloorLeftWallTexture}));
+const firstFloorLeftWall = new THREE.Mesh(new THREE.BoxGeometry(0.001, 9.7, 50), new THREE.MeshBasicMaterial({map: firstFloorLeftWallTexture}));
 firstFloorLeftWall.position.x = -25;
-firstFloorLeftWall.position.y = 10;
+firstFloorLeftWall.position.y = 15;
 scene.add(firstFloorLeftWall);
 
 // First Floor Right Wall
@@ -416,9 +483,6 @@ const firstFloorFrontWall = new THREE.Mesh(new THREE.BoxGeometry(50, 20, 0.001),
 firstFloorFrontWall.position.z = -25;
 firstFloorFrontWall.position.y = 10;
 scene.add(firstFloorFrontWall);
-
-
-
 
 
 // Controls
